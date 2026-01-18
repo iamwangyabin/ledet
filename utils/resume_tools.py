@@ -47,7 +47,10 @@ def no_resume(model, weight_path):
 
 
 def resume_checkpoint(model, weight_path):
-    checkpoint = torch.load(weight_path, map_location="cpu")
+    try:
+        checkpoint = torch.load(weight_path, map_location="cpu", weights_only=False)
+    except TypeError:
+        checkpoint = torch.load(weight_path, map_location="cpu")
     if isinstance(checkpoint, dict):
         if "model" in checkpoint:
             state_dict = checkpoint["model"]
