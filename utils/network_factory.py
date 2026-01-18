@@ -12,8 +12,22 @@ MODEL_MODULE_MAP = {
     'PoundNet': 'networks.poundnet_detector',
 }
 
+def _normalize_model_name(model_name: str) -> str:
+    return model_name.strip().lower()
+
+
 def load_model_module(model_name: str) -> Optional[Any]:
     module_path = MODEL_MODULE_MAP.get(model_name)
+    if module_path is None:
+        normalized = _normalize_model_name(model_name)
+        for key, value in MODEL_MODULE_MAP.items():
+            if _normalize_model_name(key) == normalized:
+                module_path = value
+                break
+    if module_path is None:
+        raise ValueError(
+            f"Unknown model arch '{model_name}'. Available: {sorted(MODEL_MODULE_MAP.keys())}"
+        )
     module = importlib.import_module(module_path)
     return module
 
