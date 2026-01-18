@@ -58,6 +58,14 @@ def calculate_acc_auc_f1(y_true, y_pred, thres):
     return r_acc, f_acc, acc, auc, f1, ap
 
 
+def _binary_logit(logits):
+    if logits.dim() == 2 and logits.size(1) == 2:
+        return logits[:, 0]
+    if logits.dim() == 2 and logits.size(1) == 1:
+        return logits.squeeze(1)
+    return logits.squeeze(-1)
+
+
 def validate_plain(model, loader):
     with torch.no_grad():
         y_true, y_pred, y_logits = [], [], []
@@ -65,8 +73,9 @@ def validate_plain(model, loader):
         for img, label in tqdm(loader):
             in_tens = img.cuda()
             logits = model(in_tens)['logits']
-            y_logits.extend(logits.flatten().tolist())
-            y_pred.extend(logits.sigmoid().flatten().tolist())
+            bin_logits = _binary_logit(logits)
+            y_logits.extend(bin_logits.flatten().tolist())
+            y_pred.extend(bin_logits.sigmoid().flatten().tolist())
             y_true.extend(label.flatten().tolist())
     y_true, y_pred, y_logits = np.array(y_true), np.array(y_pred), np.array(y_logits)
     r_acc0, f_acc0, acc0, auc, f1, ap = calculate_acc_auc_f1(y_true, y_pred, 0.5)
@@ -75,4 +84,3 @@ def validate_plain(model, loader):
     result_dict = { 'ap': ap, 'auc': auc, 'f1': f1, 'r_acc0': r_acc0, 'f_acc0': f_acc0, 'acc0': acc0,
         'num_real': num_real, 'num_fake': num_fake, 'y_true': y_true, 'y_pred': y_pred, 'y_logits': y_logits }
     return result_dict
-
