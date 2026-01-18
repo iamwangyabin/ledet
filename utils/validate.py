@@ -84,3 +84,24 @@ def validate_plain(model, loader):
     result_dict = { 'ap': ap, 'auc': auc, 'f1': f1, 'r_acc0': r_acc0, 'f_acc0': f_acc0, 'acc0': acc0,
         'num_real': num_real, 'num_fake': num_fake, 'y_true': y_true, 'y_pred': y_pred, 'y_logits': y_logits }
     return result_dict
+
+
+def validate_multicls(model, loader):
+    # 这就是个两个分类头的binary 分类器该如何实现val
+    with torch.no_grad():
+        y_true, y_pred, y_logits = [], [], []
+        print("Length of dataset: %d" % (len(loader)))
+        for img, label in tqdm(loader):
+            in_tens = img.cuda()
+            logits = model(in_tens)['logits']
+            y_logits.extend(logits.flatten().tolist())
+            y_pred.extend(F.softmax(logits, 1)[:,1].flatten().tolist())
+            y_true.extend(label.flatten().tolist())
+    y_true, y_pred, y_logits = np.array(y_true), np.array(y_pred), np.array(y_logits)
+    r_acc0, f_acc0, acc0, auc, f1, ap = calculate_acc_auc_f1(y_true, y_pred, 0.5)
+    num_real = (y_true == 0).sum()
+    num_fake = (y_true == 1).sum()
+    result_dict = { 'ap': ap, 'auc': auc, 'f1': f1, 'r_acc0': r_acc0, 'f_acc0': f_acc0, 'acc0': acc0,
+        'num_real': num_real, 'num_fake': num_fake, 'y_true': y_true, 'y_pred': y_pred, 'y_logits': y_logits }
+    return result_dict
+

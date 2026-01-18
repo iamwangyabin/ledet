@@ -10,7 +10,7 @@ import data
 import utils
 from utils.common import load_config_with_cli
 from utils.network_factory import get_model
-from utils.validate import validate_plain
+from utils.validate import validate_multicls
 
 def _resolve_test_datasets(conf):
     if hasattr(conf.datasets, "test"):
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 pin_memory=True,
             )
 
-            result = validate_plain(model, data_loader)
+            result = validate_multicls(model, data_loader)
 
             ap = result['ap']
             auc = result['auc']
