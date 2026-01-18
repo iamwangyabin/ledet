@@ -29,8 +29,9 @@ class EppsPulley(nn.Module):
         if N < 2:
             return x.new_zeros((x.shape[1],))
 
-        t = self.t_grid.to(dtype=x.dtype)
-        xt = x[..., None] * t[None, None, :]
+        t = self.t_grid.to(device=x.device, dtype=torch.float32)
+        x_fp32 = x.to(dtype=torch.float32)
+        xt = x_fp32[..., None] * t[None, None, :]
         phi_hat = torch.exp(1j * xt).mean(dim=0)
 
         phi_target = torch.exp(-0.5 * t**2)[None, :].to(phi_hat.dtype)

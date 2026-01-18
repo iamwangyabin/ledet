@@ -4,8 +4,6 @@ name: "ledet_poundnet_ViTL_Progan"
 
 train:
   pipeline: engine.ledet_trainer
-
-  gpu_ids: [1]
   seed: 38534
   train_epochs: 1
   gradient_accumulation_steps: 1
@@ -52,8 +50,8 @@ datasets:
           split: 'train_binary' }
     multicalss_names: ["airplane", "bird", "bottle", "car", "chair", "diningtable", "horse", "person", "sheep", "train",
                        "bicycle", "boat", "bus", "cat", "cow", "dog", "motorbike", "pottedplant", "sofa", "tvmonitor"]
-    batch_size: 128
-    loader_workers: 32
+    batch_size: 32
+    loader_workers: 16
     trsf:
       - _target_: torchvision.transforms.Resize
         size: 256
