@@ -45,3 +45,18 @@ def no_resume(model, weight_path):
     """
     pass
 
+
+def resume_checkpoint(model, weight_path):
+    checkpoint = torch.load(weight_path, map_location="cpu")
+    if isinstance(checkpoint, dict):
+        if "model" in checkpoint:
+            state_dict = checkpoint["model"]
+        elif "state_dict" in checkpoint:
+            state_dict = checkpoint["state_dict"]
+        else:
+            state_dict = checkpoint
+    else:
+        state_dict = checkpoint
+    missing, unexpected = model.load_state_dict(state_dict, strict=False)
+    if missing or unexpected:
+        print(f"resume_checkpoint: missing={len(missing)} unexpected={len(unexpected)}")

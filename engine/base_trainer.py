@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
+from tqdm import tqdm
 
 from utils.network_factory import get_model
 
@@ -100,7 +101,13 @@ class BaseTrainer(nn.Module):
             self.train()
             optimizer.zero_grad(set_to_none=True)
             last_step = -1
-            for step, batch in enumerate(train_loader):
+            is_main = self._rank() == 0
+            train_iter = tqdm(
+                train_loader,
+                desc=f"Train {epoch + 1}/{max_epochs}",
+                disable=not is_main,
+            )
+            for step, batch in enumerate(train_iter):
                 last_step = step
                 batch = tuple(item.to(device, non_blocking=True) for item in batch)
                 with torch.cuda.amp.autocast(enabled=use_amp, dtype=amp_dtype):
@@ -127,7 +134,12 @@ class BaseTrainer(nn.Module):
             if val_loader is not None and (epoch + 1) % int(self.opt.train.check_val_every_n_epoch) == 0:
                 self.eval()
                 with torch.no_grad():
-                    for batch in val_loader:
+                    val_iter = tqdm(
+                        val_loader,
+                        desc=f"Val {epoch + 1}/{max_epochs}",
+                        disable=not is_main,
+                    )
+                    for batch in val_iter:
                         batch = tuple(item.to(device, non_blocking=True) for item in batch)
                         self.validation_step(batch)
                 metrics = self.on_validation_epoch_end() or {}
