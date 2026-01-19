@@ -110,8 +110,9 @@ if __name__ == '__main__':
 
     test_name = getattr(conf, "test_name", conf.name if hasattr(conf, "name") else "test")
     if resume_path is not None:
-        weight_stem = os.path.splitext(os.path.basename(resume_path))[0]
-        test_name = weight_stem
+        parent_dir = os.path.basename(os.path.dirname(resume_path))
+        test_name = parent_dir
+
     columns = ['dataset', 'sub_set', 'ap', 'auc', 'f1', 'r_acc0', 'f_acc0', 'acc0', 'num_real', 'num_fake']
     with open(test_name + '_results.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)

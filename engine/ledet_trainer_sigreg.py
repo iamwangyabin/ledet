@@ -5,10 +5,8 @@ import torch.nn.functional as F
 from utils.validate import validate
 from engine.base_trainer import BaseTrainer
 
-
 class SIGReg(nn.Module):
     """Global SIGReg without class conditioning or standardization."""
-
     def __init__(self, knots: int = 17, t_max: float = 3.0, num_slices: int = 256):
         super().__init__()
         knots = int(knots)
@@ -27,6 +25,7 @@ class SIGReg(nn.Module):
         self.num_slices = num_slices
         self.eps = 1e-12
 
+
     def forward(self, proj: torch.Tensor) -> torch.Tensor:
         if proj.dim() != 2:
             raise ValueError("proj must be (N,K).")
@@ -39,7 +38,6 @@ class SIGReg(nn.Module):
         err = (x_t.cos().mean(-3) - self.phi).square() + x_t.sin().mean(-3).square()
         statistic = (err @ self.weights) * proj.size(-2)
         return statistic.mean()
-
 
 class Trainer_LEDet_SIGReg(BaseTrainer):
     def __init__(self, opt, logger=None):
