@@ -1,5 +1,6 @@
 import argparse
 import csv
+import os
 import pickle
 
 import hydra
@@ -108,6 +109,9 @@ if __name__ == '__main__':
             save_raw_results[f"{benchmark_name} {sub_set}"] = result
 
     test_name = getattr(conf, "test_name", conf.name if hasattr(conf, "name") else "test")
+    if resume_path is not None:
+        weight_stem = os.path.splitext(os.path.basename(resume_path))[0]
+        test_name = weight_stem
     columns = ['dataset', 'sub_set', 'ap', 'auc', 'f1', 'r_acc0', 'f_acc0', 'acc0', 'num_real', 'num_fake']
     with open(test_name + '_results.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)

@@ -153,6 +153,5 @@ class PoundNet(nn.Module):
 
         return {'logits': logits, 'features': image_features}
 
-
     def forward_binary(self, image):
         return self.forward(image)
