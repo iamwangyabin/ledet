@@ -167,7 +167,7 @@ class Trainer_LEDet(BaseTrainer):
             output = self.model(x)
 
         logits = output["logits"]
-        z = output.get("features", output.get("z", None))
+        z = output["features"]
 
         if self.cc_reg is None:
             self._init_cc_reg(z.shape[1], z.device, z.dtype)

@@ -140,18 +140,16 @@ class PoundNet(nn.Module):
                              scale_factor=1 / factor, mode='nearest', recompute_scale_factor=True)
 
 
-    def forward(self, image, return_binary=False):
+    def forward(self, image):
         prompts = self.prompt_learner()
 
         text_features = self.text_encoder(prompts, self.tokenized_prompts)
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
 
         image_features = self.image_encoder(image)
-        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        image_features_norm = image_features / image_features.norm(dim=-1, keepdim=True)
 
-        logits = self.logit_scale.exp() * image_features @ text_features.t()
+        logits = self.logit_scale.exp() * image_features_norm @ text_features.t()
 
         return {'logits': logits, 'features': image_features}
 
-    def forward_binary(self, image):
-        return self.forward(image)

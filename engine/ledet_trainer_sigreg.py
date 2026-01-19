@@ -72,13 +72,10 @@ class Trainer_LEDet_SIGReg(BaseTrainer):
         x, y = batch
         y_bin = (y % 2).long()
 
-        if hasattr(self.model, "forward_binary"):
-            output = self.model.forward_binary(x)
-        else:
-            output = self.model(x)
+        output = self.model(x)
 
         logits = output["logits"]
-        z = output.get("features", output.get("z", None))
+        z = output["features"]
 
         if self.sigreg is None:
             self._init_sigreg(z.device, z.dtype)
@@ -97,10 +94,7 @@ class Trainer_LEDet_SIGReg(BaseTrainer):
         x, y = batch
         y_bin = (y % 2).long()
 
-        if hasattr(self.model, "forward_binary"):
-            output = self.model.forward_binary(x)
-        else:
-            output = self.model(x)
+        output = self.model(x)
 
         logits = output["logits"]
         bin_logit = self._binary_logit(logits)
